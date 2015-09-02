@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="../src/css/calendar.css">
+	<script src="../src/js/jquery-1.8.3.min.js"></script>
+	<script src="../src/js/moment.min.js"></script>
+	<script src="../src/js/calendar.js"></script>
+</head>
+<body>
+	<input type="hidden" id="serverDate" value="2015-07-29" />
+	<input type="hidden" id="teacherId" value="434324" />
+	<div id='fullCalendar'>
+		<div class="calendarDesc fr">
+            <i class="icon-green-dot"></i>待排课
+            <i class="icon-gray-dot"></i>已排课
+            <i class="icon-white-dot"></i>非工作时间
+        </div>
+	</div>
+	<a href="javascript:;" class="save">保存</a>
+	<a href="javascript:;" class="reset">清除</a>
+	<script>
+	$(function(){
+		var teacherId = $("#teacherId").val();
+
+		var oldEvents = [{start:"2015-07-30T12:10:00", end:"2015-07-30T12:40:00", isOwnnered:true},{start:"2015-07-30T13:40:00", end:"2015-07-31T14:40:00", isOwnnered:false}];
+
+		var newEvents = [{start:"2015-08-03T12:00:00", end:"2015-08-03T12:30:00", isOwnnered:false}];
+
+			// 不可编辑状态
+			$('#fullCalendar').huiCalendar({
+	            contentHeight: 800,
+	            contentWidth: 900,
+	            defaultDate: $("#serverDate").val(),
+	            selected: true,
+	            // events: oldEvents,
+	            afterChange: function(){
+	            	getTimeList({
+	        			teacherid: teacherId,
+	        			start: '2015',
+	        			end: '2015'
+	        		}, function(data){
+	        			$('#fullCalendar').huiCalendar('removeEvents');
+	            		$('#fullCalendar').huiCalendar('renderEvents', data);
+	        		});
+	            },
+	            afterRender: function(){
+	            	$(".hui-time").css("cursor", "default");
+	            },
+	            eventsRender: function(event, obj){
+	            	obj.addClass("selected");
+	            	event.isOwnnered && obj.addClass("disabled");
+	            	obj.data("event",event);
+	            },
+	            eventClick: function(obj){
+	            	var eventData = obj.data("event"),
+	            		content = '',
+	            		day = moment(obj.attr("data-date")).format("MM.DD");
+
+	            	content = '<div style="padding: 10px 20px;">'
+	            	+ '<p style="text-align:center;color:#7D8A96;">时间</p>'
+	            	+ '<p style="margin-top:5px;color:#2C3E50;">' + day + '<span style="margin: 0 10px;color: #F3F5F7;">|</span>' + obj.text() + '</p>';
+
+	            	content += (eventData && eventData.isOwnnered) ?
+            		'<p style="color:#B3BCC4;border-top: 1px solid #EBECED;padding-top: 10px;">已排课，如果请假请联系教务</p></div>' :
+	            	'<a href="javascript:;" class="btnLeave">我要请假</a></div>';
+
+	            	obj.hasClass("selected") && $('#fullCalendar').huiCalendar('openInfoBox', obj, content);
+	            }
+	        });
+
+			getTimeList({
+				teacherid: teacherId,
+				start: '2015',
+				end: '2015'
+			}, function(data){
+				$('#fullCalendar').huiCalendar('removeEvents');
+				$('#fullCalendar').huiCalendar('renderEvents', data);
+			});
+	        // 可编辑状态
+	    //     $('#fullCalendar').huiCalendar({
+	    //         contentHeight: 800,
+	    //         contentWidth: 900,
+	    //         switcher: false,
+	    //         defaultDate: $("#serverDate").val(),
+	    //         events: oldEvents,
+	    //         selected: true,
+	    //         eventsRender: function(event, obj){
+	    //         	event.isOwnnered && obj.addClass("disabled");
+	    //         	obj.data("event",event);
+	    //         },
+	    //         eventClick: function(obj){
+	    //         	var eventData = obj.data("event");
+
+	    //         	if(eventData && eventData.isOwnnered){
+	    //         		return false;
+	    //         	}
+	    //         	obj.toggleClass("selected");
+	    //         },
+	    //         eventMousemove: function(e){
+	    //         	var $obj = $(e.target);
+					// $obj.addClass("selected");
+	    //         }
+	    //     });
+		// });
+
+        function getTimeList(data, callback){
+        	// $.ajax({
+        	// 	type: 'GET',
+        	// 	data: data,
+        	// 	url: '',
+        	// 	success: function(response){
+        	// 		callback && callback(response.data);
+        	// 	}
+        	// });
+        	callback(oldEvents);
+        }
+
+        $(".save").on("click", function(){
+        	var result = $('#fullCalendar').huiCalendar('getResult');
+        	// ajax 提交
+        });
+
+        $(".reset").on("click", function(){
+        	if(confirm("确认要清除吗？")){
+        		$('#fullCalendar').huiCalendar('removeEvents');
+        	}
+        });
+	});	
+	</script>
+</body>
+</html>

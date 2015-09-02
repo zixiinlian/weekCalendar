@@ -1,0 +1,5 @@
+Thunbs.db
+node_modules
+.sass-cache
+dist
+.temp
